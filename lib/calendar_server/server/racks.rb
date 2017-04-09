@@ -12,17 +12,21 @@ module CalendarServer
         _endpoints = endpoints
         _middlewares = middlewares
 
-        Rack::Builder.new do |builder|
-          use _middlewares.logger
-          map '/events' do |b|
-            b.run _endpoints.create_event
+        Rack::Builder.new do
+          use Rack::CommonLogger
+          use Rack::ShowExceptions
+
+          map '/events' do
+            # use _middlewares.logger
+            use _middlewares.create_event_validator
+            run _endpoints.events_api
           end
 
-          map '/ping' do |b|
-            b.run _endpoints.ping
+          map '/ping' do
+            run _endpoints.ping
           end
 
-          builder.run _endpoints.not_found
+          run _endpoints.not_found
         end
       end
 

@@ -9,15 +9,16 @@ module CalendarServer
       DESCRIPTION = 'description'.freeze
 
       RESPONSE_HEADERS = { 'Content-Type'.freeze => 'text/plain'.freeze }.freeze
-      RESPONSE_BODY = ''.freeze
+      RESPONSE_BODY = [''.freeze].freeze
 
       def initialize(app)
         self.app = app
       end
 
       def call(env)
-        params = env[PARAMS]
-        return [400, RESPONSE_HEADER, RESPONSE_BODY] unless validate_params(params)
+        env = Rack::Request.new(env)
+        params = env.params
+        return [400, RESPONSE_HEADERS, RESPONSE_BODY] unless validate_params(params)
         env[PARAMS] =  parse_params(params)
         app.call env
       end
@@ -35,7 +36,8 @@ module CalendarServer
       end
 
       def validate_params(params)
-        params[START_TIME] && params[END_TIME] && params[NAME]
+        params && params[START_TIME] &&
+          params[END_TIME] && params[NAME]
       end
     end
   end

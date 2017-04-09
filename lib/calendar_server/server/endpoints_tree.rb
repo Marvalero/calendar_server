@@ -1,4 +1,5 @@
 require_relative 'endpoint'
+require_relative 'api'
 
 module CalendarServer
   module Server
@@ -12,6 +13,10 @@ module CalendarServer
       def create_event
         @create_event ||= build_endpoint(self.events.actions.create,
                                          CREATE_RESPONSE)
+      end
+
+      def events_api
+        @events_api ||= build_api(create: create_event)
       end
 
       def ping
@@ -28,6 +33,18 @@ module CalendarServer
 
       def build_endpoint(action, success_response)
         endpoint_class.new(action: action, success_response: success_response)
+      end
+
+      def build_api(create: nil, update: nil, read: nil, delete: nil)
+        api_class.new(create_endpoint: create,
+                      delete_endpoint: delete,
+                      update_endpoint: update,
+                      read_endpoint: read,
+                      error_response: NOT_FOUND_RESPONSE)
+      end
+
+      def api_class
+        @api_class ||= CalendarServer::Server::Api
       end
 
       def endpoint_class

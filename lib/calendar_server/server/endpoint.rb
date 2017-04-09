@@ -2,15 +2,13 @@
 module CalendarServer
   module Server
     class Endpoint
-      PARAMS = 'params'.freeze
-
       def initialize(action:, success_response:)
         self.action = action
         self.success_response = success_response
       end
 
       def call(env)
-        action.call env[PARAMS]
+        action.call env.params
         success_response
       end
 
